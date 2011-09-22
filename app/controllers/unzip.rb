@@ -1,4 +1,5 @@
 require 'zip/zipfilesystem'	# needs: gem 'rubyzip'
+require 'nokogiri'		# needs: gem 'nokogirl'
 
 # source should be a zip file.
 # target should be a directory to output the contents to.
@@ -30,27 +31,56 @@ end
 
 
 def getAndroidManifestFromAPK(apkFile)
+  apkFile = File.expand_path(apkFile)
   logger.debug "getAndroidManifestFromAPK:1 " + File.basename(__FILE__)
-  begin
-    Zip::ZipFile.open(apkFile) do |zipfile|
-      logger.debug "getAndroidManifestFromAPK:2: " + zipfile
-      dir = zipfile.dir
-      logger.debug "getAndroidManifestFromAPK:3: " + dir
-	
-      entry = dir.find_entry('AndroidManifest.xml')
-      logger.debug "getAndroidManifestFromAPK:4"
-      entry.get_input_stream('')
-      logger.debug "getAndroidManifestFromAPK:5"
-    end
-    
-  rescue Zip::ZipDestinationFileExistsError => e
-    # I'm going to ignore this and just overwrite the files.
-    logger.debug "File Does Not Exist: " + e
-      
-    rescue => e
-  else
-    logger.debug "Exception: " + e
+
+  File.open(apkFile, "r") do |file|
+    logger.debug "getAndroidManifestFromAPK:2.1: " + file.path
   end
+
+  if File.exist?(apkFile)
+    logger.debug "getAndroidManifestFromAPK: open " + apkFile
+
+    begin
+      Zip::ZipFile.open(apkFile) do |zipfile|
+	logger.debug "getAndroidManifestFromAPK:3: " + zipfile.name
+	entry = zipfile.find_entry('AndroidManifest.xml')
+	logger.debug "getAndroidManifestFromAPK: entry " + entry.name
+	entry.get_input_stream() do |stream|
+	  logger.debug "getAndroidManifestFromAPK: stream " + stream.eof?.to_s
+	  
+	  xmlDoc = Nokogiri::XML(stream)
+	  logger.debug "getAndroidManifestFromAPK: xmlDoc " + xmlDoc.name
+	  
+	  Nokogiri::XML::Reader.from_io(stream).each do |node|
+	  logger.debug "getAndroidManifestFromAPK: node "
+	    if node.name == 'book' and node.node_type == XML::Reader::TYPE_ELEMENT
+	      yield(Nokogiri::XML(node.outer_xml).root)
+	    end
+	  end
+	  logger.debug "getAndroidManifestFromAPK: xml " + doc.url
+	  
+	  lines = stream.readlines
+	  logger.debug "getAndroidManifestFromAPK: lines " + lines.length.to_s
+	  logger.debug "getAndroidManifestFromAPK: line: " + lines[0]
+	  #stream.each do |line|
+	  #  logger.debug "getAndroidManifestFromAPK: line: " + line.to_s
+	  #end
+	end
+	logger.debug "getAndroidManifestFromAPK:5"
+      end
+      
+    rescue Zip::ZipDestinationFileExistsError => ex
+      # I'm going to ignore this and just overwrite the files.
+      logger.debug "getAndroidManifestFromAPK: File Does Not Exist: " + ex
+	
+      rescue => ex
+    rescue  => ex
+      logger.debug "getAndroidManifestFromAPK: Exception: " + ex
+    end
+  else
+  end
+  
   logger.debug "getAndroidManifestFromAPK:9 " + File.basename(__FILE__)
 end
 
