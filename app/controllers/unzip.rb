@@ -52,6 +52,9 @@ def getAndroidManifestFromAPK(apkFile)
 	  xmlDoc = Nokogiri::XML(stream)
 	  logger.debug "getAndroidManifestFromAPK: xmlDoc " + xmlDoc.name
 	  
+	  root = xmlDoc.root()
+	  logger.debug "getAndroidManifestFromAPK: root " + root.name
+	  
 	  Nokogiri::XML::Reader.from_io(stream).each do |node|
 	  logger.debug "getAndroidManifestFromAPK: node "
 	    if node.name == 'book' and node.node_type == XML::Reader::TYPE_ELEMENT
