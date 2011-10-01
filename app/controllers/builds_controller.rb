@@ -34,6 +34,7 @@ class BuildsController < ApplicationController
     end
 
     logger.debug "unzipping..."
+    
     manifest = getAndroidManifestFromAPK('db/Moviefone-1.8.36.1.apk')
     logger.debug "unzipping done.."
   end

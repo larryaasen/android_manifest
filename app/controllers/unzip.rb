@@ -29,6 +29,73 @@ end
 
 # unzip_file('/home/styrmis/workspace/ruby/unzip/test.zip', '/home/styrmis/workspace/ruby/unzip/target')
 
+def unpackXML
+      
+  file = File.new("/Users/larry/Projects/RailsProjects/android_manifest/db/AndroidManifest.xml", "rb")
+
+  # Some header, seems to be 3000 8000 always.
+  magic = file.read(4).unpack('vv')
+  
+  # Total file length.
+  length = file.read(4).unpack('V')
+
+  # Unknown, always 0100 1c00
+  unknown1 = file.read(4).unpack('vv')
+  
+  # Seems to be related to the total length of the string table.
+  tlen = file.read(4).unpack('V')
+
+  # Number of items in the string table, plus some header non-sense?
+  totalStrings = file.read(4).unpack('V')
+  
+  totalStrings = totalStrings[0]		#convert from array to integer
+
+  # Seems to always be 0.
+  unknown2 = file.read(4).unpack('V')
+  
+  # Seems to always be 1.
+  unknown3 = file.read(4).unpack('V')
+  
+  # No clue, relates to the size of the string table?
+  unknown4 = file.read(4).unpack('V')
+  
+  # Seems to always be 0.
+  unknown5 = file.read(4).unpack('V')
+
+  stringOffsets = []
+  
+  # Offset in string table of each string.
+  totalStrings.times do |zz|
+    stringOffsets[zz] = file.read(4).unpack('V')
+  end
+
+  strings = {}
+  currentOffset = 0
+  
+  # The string table looks to have been serialized from a hash table, since
+  # the positions are not sorted :)
+  stringOffsets.each do |offset|
+    if offset != currentOffset
+      break
+    end
+    
+    len = file.read(2).unpack('v')
+    
+    len = len[0]	# convert from array to integer
+
+    stringUnpacked = file.read(len*2)
+    str = stringUnpacked.tr_s(0.chr, '')
+    logger.debug str
+
+    # Read the NUL, we're not interested in storing it.
+    file.read(2)
+
+    strings[offset] = str
+    
+    currentOffset += ((len + 1) * 2) + 2
+  end
+
+end
 
 def getAndroidManifestFromAPK(apkFile)
   apkFile = File.expand_path(apkFile)
