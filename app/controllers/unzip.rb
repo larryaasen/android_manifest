@@ -10,6 +10,8 @@ TAG_OPEN = 0x10
 TAG_SUPPORTS_CHILDREN = 0x100000
 TAG_TEXT = 0x08
 
+nsmap = {}
+xmlns = []
 
 # source should be a zip file.
 # target should be a directory to output the contents to.
@@ -150,39 +152,40 @@ end
 
 def read_meat(file, strings)
   tag = read_tag(file, strings)
+logger.debug "read_meat: tag: #{tag}"
   return if tag == nil
   
-#  $tag->{children} = [ read_children(file, strings, tag->{name}) ];
+  tag['children'] = read_children(file, strings, tag['name'])
   
   return tag
 end
 
 def read_children(file, strings, stopTag)
+  tags = []
   while tag = read_tag(file, strings)
 	  # Whitespace leaks into this, but we don't support parsing it
 	  # correctly.
   #		next unless $tag->{name} =~ m/[a-z]/i;
   
-	  if tag->{flags} & TAG_SUPPORTS_CHILDREN != 0
-#		  if tag->{flags} & TAG_OPEN != 0
-#			  tag.children = [ read_children(file, strings, tag->{name}) ];
-#		  elsif tag->{name} == stopTag
-#			  break;
-#		  end
+	  if tag['flags'] & TAG_SUPPORTS_CHILDREN != 0
+  	  if tag['flags'] & TAG_OPEN != 0
+			  tag.children = [ read_children(file, strings, tag['name']) ];
+		  elsif tag['name'] == stopTag
+			  break;
+		  end
 	  end
   
-	  push @tags, $tag;
+	  tags << tag
   end
   
-  return @tags;
+  return tags
 end
 
 def read_tag(file, strings)
   # Hack to support the strange xmlns attribute encoding without disrupting our
   # processor.
   readAgain = true
-  nsmap = {}
-  xmlns = []
+  tagHash = {}
   
   while readAgain
     readAgain = false
@@ -209,7 +212,7 @@ def read_tag(file, strings)
         nsmap[flags] = name
         logger.debug " nsmap #{nsmap}"
 
-  			xmlns << { 'name' => "xmlns:$ns", 'value' => url }
+  			xmlns << { 'name' => "xmlns:#{ns}", 'value' => url }
 
         read_doc_past_sentinel(file)
         readAgain = true
@@ -218,7 +221,7 @@ def read_tag(file, strings)
   end
 
   if (flags & TAG_SUPPORTS_CHILDREN) != 0 && (flags & TAG_OPEN) != 0
- 		tagHash[attrs] = [ @xmlns ];
+ 		tagHash['attrs'] = xmlns
  		
     attrs = file.read(4).unpack('V')
     attrs = attrs[0]			# convert from array to integer
@@ -227,7 +230,7 @@ def read_tag(file, strings)
     unknown = file.read(4).unpack('V')
     unknown = unknown[0]			# convert from array to integer
 
-    attrs.times do
+    attrs.times do |zz|
       ns = file.read(4).unpack('V')
 logger.debug " ns1 #{ns}"
       ns = ns[0]			# convert from array to integer
@@ -249,9 +252,9 @@ logger.debug " ns2 #{ns}"
       attrflags = attrflags[0]			# convert from array to integer
 
       attr = {
-	      name => strings[attr],
-	      value => strings[value],
-	      flags => attrflags
+	      'name' => strings[attr],
+	      'value' => strings[value],
+	      'flags' => attrflags
       }
 logger.debug " attr hash: #{attr}"
 
@@ -259,11 +262,9 @@ logger.debug " ns #{ns} (%x)" % ns
 logger.debug " nsmap #{nsmap}"
 xx = nsmap[ns]
 logger.debug " xx #{xx}"
-## xxx = strings[nsmap[ns]]
-      ns != 0xFFFFFFFF and attr[ns] = strings[nsmap[ns]]
+      ns != 0xFFFFFFFF and attr['ns'] = strings[nsmap[ns]]
 
-      tagHash 
-      ##push @{$tag->{attrs}}, $attr;
+      tagHash['attrs'] << attr
 
       padding = file.read(4).unpack('V')
     end
