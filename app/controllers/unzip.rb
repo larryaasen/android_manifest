@@ -118,8 +118,9 @@ def unpackXML
   # Convert the hash of strings to an array of strings
   strings = strings.values
   
+  # Dump the string table to the logger
   strings.each_index do |zz|
-    logger.debug "%2d: %s" % [zz, strings[zz]]
+    logger.debug "%2d:0x%x %s" % [zz, zz, strings[zz]]
   end
   
   parsed = read_meat(file, strings)
