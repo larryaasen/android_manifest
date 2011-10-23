@@ -181,6 +181,8 @@ def read_tag(file, strings)
   # Hack to support the strange xmlns attribute encoding without disrupting our
   # processor.
   readAgain = true
+  nsmap = {}
+  xmlns = []
   
   while readAgain
     readAgain = false
@@ -197,22 +199,27 @@ def read_tag(file, strings)
 									       flags & TAG_TEXT]
   
     # Strange way to specify xmlns attribute.
-    nsmap = {}
     if strings[name] && strings[flags]
       ns = strings[name]
       url = strings[flags]
     
       # TODO: How do we expect this?
       if ns =~ /[a-z]/i ### && url =~ m/^http:\/\//
-	logger.debug "new map: {flags} => {name}"
-	nsmap[flags] = name
-	read_doc_past_sentinel(file)
-	readAgain = true
+        logger.debug "new map: #{flags} => #{name}"
+        nsmap[flags] = name
+        logger.debug " nsmap #{nsmap}"
+
+  			xmlns << { 'name' => "xmlns:$ns", 'value' => url }
+
+        read_doc_past_sentinel(file)
+        readAgain = true
       end
     end
   end
 
   if (flags & TAG_SUPPORTS_CHILDREN) != 0 && (flags & TAG_OPEN) != 0
+ 		tagHash[attrs] = [ @xmlns ];
+ 		
     attrs = file.read(4).unpack('V')
     attrs = attrs[0]			# convert from array to integer
     logger.debug "	attrs=%d" % attrs
@@ -220,12 +227,14 @@ def read_tag(file, strings)
     unknown = file.read(4).unpack('V')
     unknown = unknown[0]			# convert from array to integer
 
-    while true #attrs-- > 0
+    attrs.times do
       ns = file.read(4).unpack('V')
+logger.debug " ns1 #{ns}"
       ns = ns[0]			# convert from array to integer
+logger.debug " ns2 #{ns}"
 
       ns != 0xFFFFFFFF and
-	logger.debug "		namespace=%s" % strings[ns]
+        logger.debug "		namespace=%s" % strings[ns]
 
       attr = file.read(4).unpack('V')
       attr = attr[0]			# convert from array to integer
@@ -244,9 +253,16 @@ def read_tag(file, strings)
 	      value => strings[value],
 	      flags => attrflags
       }
+logger.debug " attr hash: #{attr}"
 
+logger.debug " ns #{ns} (%x)" % ns
+logger.debug " nsmap #{nsmap}"
+xx = nsmap[ns]
+logger.debug " xx #{xx}"
+## xxx = strings[nsmap[ns]]
       ns != 0xFFFFFFFF and attr[ns] = strings[nsmap[ns]]
 
+      tagHash 
       ##push @{$tag->{attrs}}, $attr;
 
       padding = file.read(4).unpack('V')
@@ -261,6 +277,7 @@ def read_tag(file, strings)
     read_doc_past_sentinel(file)
   end
 
+  return tagHash
 end
 
 def peek_doc(file, numBytes)
