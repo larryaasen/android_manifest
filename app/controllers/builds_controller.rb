@@ -1,4 +1,4 @@
-require 'unzip.rb'
+require 'AndroidAPK'
 
 class BuildsController < ApplicationController
   # GET /builds
@@ -34,9 +34,9 @@ class BuildsController < ApplicationController
     end
 
     logger.debug "unzipping..."
-    unpackXML
+
+    ttt = AndroidAPK.getAndroidManifestFromAPK('db/Moviefone-1.8.36.1.apk')
     
-#    manifest = getAndroidManifestFromAPK('db/Moviefone-1.8.36.1.apk')
     logger.debug "unzipping done.."
   end
 

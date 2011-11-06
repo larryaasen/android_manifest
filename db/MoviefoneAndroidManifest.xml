@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.aol.mobile.moviefone" android:versionCode="1"
+	android:versionName="1.1" android:installLocation="auto">
+
+	<application android:name="MoviefoneApplication"
+		android:icon="@drawable/mficon" android:label="@string/applicationName"
+		android:hardwareAccelerated="true"
+		android:debuggable="true">
+		<activity android:label="@string/applicationName"
+			android:launchMode="singleTask" android:name=".ui.SimpleTabView"
+			android:configChanges="orientation|keyboardHidden" android:theme="@android:style/Theme.NoTitleBar">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+		<activity android:name=".ui.SplashScreen" android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.MovieDetailView" android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.TrailerView"
+			android:screenOrientation="landscape"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+		<activity android:name=".ui.AppSettings" android:theme="@android:style/Theme.NoTitleBar"
+			android:configChanges="keyboard|keyboardHidden|navigation|orientation" />
+		<activity android:name=".ui.TheaterDetailView"
+			android:configChanges="keyboard|keyboardHidden|navigation|orientation"
+			android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.TheaterMovieDetailView"
+			android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.InviteFriendsActivity"
+			android:windowSoftInputMode="stateVisible|adjustResize"
+			android:configChanges="keyboard|keyboardHidden|navigation|orientation" />
+		<activity android:name=".ui.SelectShowtimeActivity"
+			android:configChanges="keyboard|keyboardHidden|navigation|orientation" />
+		<activity android:name=".ui.SelectFriendsActivity"
+			android:windowSoftInputMode="stateHidden" android:configChanges="orientation|keyboardHidden"
+			android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.NearShowtimesView"
+			android:configChanges="keyboard|keyboardHidden|navigation|orientation"
+			android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.About" android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.EditLocation" android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.SearchMovie" android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.NewsDetailView" android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.FullScreenPoster"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"></activity>
+		<activity android:name=".ui.CelebrityInfoActivity"
+			android:theme="@android:style/Theme.NoTitleBar" />
+		<activity android:name=".ui.BiographyDetailActivity"
+			android:theme="@android:style/Theme.NoTitleBar" />
+
+		<activity android:name=".ui.gallery.GalleryView" 
+			android:theme="@android:style/Theme.NoTitleBar" android:label="GalleryView"
+			android:configChanges="orientation|keyboard|keyboardHidden" />
+
+		<activity android:name=".ui.gallery.ThumbNailView"
+			android:label="ThumbNailView" />
+			
+		<!--
+            ADMARVEL: If your integrating with Admob, please define this activity
+        -->
+        <activity android:name="com.admob.android.ads.AdMobActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            >
+        </activity>
+        
+        <!--
+            ADMARVEL:  If your integrating with Millennial, please define this
+         -->
+
+        <activity android:name="com.millennialmedia.android.MMAdViewOverlayActivity"
+                        android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        </activity>
+        <activity android:name="com.millennialmedia.android.VideoPlayer"
+                        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                        android:configChanges="keyboardHidden|orientation|keyboard" >
+        </activity>
+        
+	</application>
+
+	<uses-permission android:name="android.permission.INTERNET" />
+
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+	
+	<!-- REQUIRED BY GREYSTRIPE AND MEDIALETS -->
+	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+	<!-- REQUIRED BY MEDIALETS -->
+	<uses-permission android:name="android.permission.RECORD_AUDIO" />
+	<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+
+	<supports-screens android:largeScreens="true"
+		android:normalScreens="true" android:anyDensity="true" />
+
+	<uses-sdk android:targetSdkVersion="11" android:minSdkVersion="4" />
+</manifest> 
