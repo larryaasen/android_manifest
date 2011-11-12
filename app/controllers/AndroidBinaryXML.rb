@@ -158,7 +158,7 @@ private            # subsequent methods will be 'private'
   
   def read_meat(file, strings)
     tag = read_tag(file, strings)
-  logger.debug "read_meat: tag: #{tag}"
+    logger.debug "read_meat: tag: #{tag}"
     return if tag == nil
     
     tag['children'] = read_children(file, strings, tag['name'])
@@ -166,10 +166,11 @@ private            # subsequent methods will be 'private'
     return tag
   end
   
+  # returns and array of tags
   def read_children(file, strings, stopTag)
     logger.debug "read_children: stopTag = #{stopTag}"
     
-    tags = []
+    tagArray = []
     while tag = read_tag(file, strings)
       # Whitespace leaks into this, but we don't support parsing it
       # correctly.
@@ -185,13 +186,14 @@ private            # subsequent methods will be 'private'
         end
       end
     
-      tags << tag
+      tagArray << tag
     end
     
     logger.debug "read_children: end"
-    return tags
+    return tagArray
   end
   
+  # returns a tag hash
   def read_tag(file, strings)
     # Hack to support the strange xmlns attribute encoding without disrupting our
     # processor.
@@ -236,8 +238,6 @@ private            # subsequent methods will be 'private'
   
     if (flags & @@TAG_SUPPORTS_CHILDREN) != 0 && (flags & @@TAG_OPEN) != 0
       tagHash['attrs'] = []
-#      tagHash['attrs'] = @xmlns
-#  logger.debug "read_tag (while) - @xmlns: #{@xmlns}" 
 
       attrs = file.read(4).unpack('V')
       attrs = attrs[0]			# convert from array to integer

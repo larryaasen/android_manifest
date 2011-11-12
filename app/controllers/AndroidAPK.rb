@@ -5,24 +5,54 @@
 
 require 'AndroidBinaryXML'
 
-class AndroidAPK < ApplicationController
+class AndroidAPK #< ApplicationController
 
 	def AndroidAPK.getAndroidManifestFromAPK(apkFile)
+		apk = AndroidAPK.new
+		apk.getAndroidManifestFromAPK(apkFile)
+		return apk
+	end
+  
+  #@tagHash = {}
+  
+  def package
+    @tagHash.each { |key, value|
+			if key == "attrs"
+		    value.each { |attrKey, attrValue|
+					if attrKey['name'] == "package"
+						return attrKey['value']
+					end
+				}
+			end
+		}
+    return nil
+  end
+  
+  def versionName
+    @tagHash.each { |key, value|
+			if key == "attrs"
+		    value.each { |attrKey, attrValue|
+					if attrKey['name'] == "versionName"
+						return attrKey['value']
+					end
+				}
+			end
+		}
+    return nil
+  end
+	
+	def getAndroidManifestFromAPK(apkFile)
+		@tagHash = nil
 		apkFile = File.expand_path(apkFile)
-		logger.debug "getAndroidManifestFromAPK:1 " + File.basename(__FILE__)
 	
-		#File.open(apkFile, "r") do |file|
-		#	logger.debug "getAndroidManifestFromAPK:2.1: " + file.path
-		#end
-	
-		logger.debug "getAndroidManifestFromAPK:2 open " + apkFile
+		puts "getAndroidManifestFromAPK: open " + apkFile
 		if File.exist?(apkFile)
 			
 			begin
 				Zip::ZipFile.open(apkFile) do |zipfile|
-					logger.debug "getAndroidManifestFromAPK:3: " + zipfile.name
+					puts "getAndroidManifestFromAPK:3: " + zipfile.name
 					entry = zipfile.find_entry('AndroidManifest.xml')
-					logger.debug "getAndroidManifestFromAPK: entry " + entry.name
+					puts "getAndroidManifestFromAPK: entry " + entry.name
 					
 
 					# Create a new filename for the extracted AndroidManifest.xml file
@@ -36,13 +66,13 @@ class AndroidAPK < ApplicationController
           # Extract the AndroidManifest.xml file
           zipfile.extract(entry, file_path)
 
-					logger.debug "getAndroidManifestFromAPK: file_path #{file_path}"
+					puts "getAndroidManifestFromAPK: file_path #{file_path}"
 						
 					manifest = AndroidBinaryXML.open(file_path)
-					manifest.unpackXML
+					@tagHash = manifest.unpackXML
 					manifest.close
 					
-					logger.debug "getAndroidManifestFromAPK:5"
+					puts "getAndroidManifestFromAPK:5"
 				end		# do |zipfile|
 				
 #			rescue Zip::ZipDestinationFileExistsError => ex
@@ -54,7 +84,7 @@ class AndroidAPK < ApplicationController
 		else
 		end
 		
-		logger.debug "getAndroidManifestFromAPK:9 " + File.basename(__FILE__)
+		return
 	end
   
 end

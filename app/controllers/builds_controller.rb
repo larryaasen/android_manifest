@@ -35,7 +35,7 @@ class BuildsController < ApplicationController
 
     logger.debug "unzipping..."
 
-    ttt = AndroidAPK.getAndroidManifestFromAPK('db/Moviefone-1.8.36.1.apk')
+    AndroidAPK.getAndroidManifestFromAPK('db/Moviefone-1.8.36.1.apk')
     
     logger.debug "unzipping done.."
   end
